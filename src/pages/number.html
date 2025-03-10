@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiply by 2</title>
+</head>
+<body>
+    <h2>Enter a number:</h2>
+    <input type="number" id="userInput" placeholder="Enter a number">
+    <button onclick="multiplyByTwo()">Multiply by 2</button>
+    <p>Result: <span id="result"></span></p>
+
+    <script>
+        function multiplyByTwo() {
+            let input = document.getElementById("userInput").value;
+            let result = input * 2;
+            document.getElementById("result").innerText = result;
+        }
+    </script>
+</body>
+</html>
