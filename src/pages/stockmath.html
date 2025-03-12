@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiply by 2</title>
+</head>
+<body>
+    <h2>Enter a number:</h2>
+    <input type="number" id="userInput" placeholder="Enter a number">
+    <button onclick="multiplyByTwo()">Multiply by 2</button>
+    <p>Result: <span id="result"></span></p>
+
+    <script>
+        function multiplyByTwo() {
+            let input = document.getElementById("userInput").value;
+            let result = input * 2;
+            document.getElementById("result").innerText = result;
+        }
+
+        //nodejs code given to by alhpadavantage.co
+            'use strict';
+            var request = require('request');
+
+            // replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
+            var url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo';
+
+            request.get({
+                url: url,
+                json: true,
+                headers: {'User-Agent': 'request'}
+            }, (err, res, data) => {
+                if (err) {
+                console.log('Error:', err);
+                } else if (res.statusCode !== 200) {
+                console.log('Status:', res.statusCode);
+                } else {
+                // data is successfully parsed as a JSON object:
+                console.log(data);
+                }
+            });
+    </script>
+</body>
+</html>
