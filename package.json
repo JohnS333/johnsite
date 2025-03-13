@@ -1,0 +1,24 @@
+{
+  "name": "johnsite",
+  "version": "1.0.0",
+  "description": "Site where I can try things and also navigate between different pages.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnS333/johnsite.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/JohnS333/johnsite/issues"
+  },
+  "homepage": "https://github.com/JohnS333/johnsite#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
