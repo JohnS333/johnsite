@@ -3,42 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiply by 2</title>
+    <title>Stock Price Lookup</title>
 </head>
 <body>
-    <h2>Enter a number:</h2>
-    <input type="number" id="userInput" placeholder="Enter a number">
-    <button onclick="multiplyByTwo()">Multiply by 2</button>
-    <p>Result: <span id="result"></span></p>
+    <h1>Stock Price Lookup</h1>
+    <h2>Enter a stock ticker:</h2>
+    <input type="text" id="tickerInput">
+    <h2>Enter a date (YYYY-MM-DD):</h2>
+    <input type="date" id="dateInput">
+    <h2>Chosen Date: </h2>
+    <div id="chosenDate"></div>
+    
+    <button onclick="getStockPrice()">Get Stock Price</button>
+    <p>Stock Price: <span id="stockPrice"></span></p>
+
 
     <script>
-        function multiplyByTwo() {
-            let input = document.getElementById("userInput").value;
-            let result = input * 2;
-            document.getElementById("result").innerText = result;
-        }
+        function getStockPrice() {
+            const date = document.getElementById("dateInput").value;
+            const url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=TSLA&apikey=DM99RGCH8IWJB0AE';
 
-        //nodejs code given to by alhpadavantage.co
-            'use strict';
-            var request = require('request');
-
-            // replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
-            var url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo';
-
-            request.get({
-                url: url,
-                json: true,
-                headers: {'User-Agent': 'request'}
-            }, (err, res, data) => {
-                if (err) {
-                console.log('Error:', err);
-                } else if (res.statusCode !== 200) {
-                console.log('Status:', res.statusCode);
-                } else {
-                // data is successfully parsed as a JSON object:
-                console.log(data);
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
                 }
+                return response.json();
+            })
+            .then(data => {
+                const timeSeries = data["Time Series (Daily)"];
+                    if (timeSeries && timeSeries[date]) {
+                        const stockPrice = timeSeries[date]["4. close"];
+                        document.getElementById("stockPrice").innerText = stockPrice;
+                    } else {
+                        document.getElementById("stockPrice").innerText = "No data available for this date.";
+                    }
+                })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
             });
+        
+        
+      
+            document.getElementById("chosenDate").innerText = date;  
+        
+        }
     </script>
 </body>
 </html>
