@@ -38,131 +38,83 @@
             const date = document.getElementById("dateInput").value;
             const chosenDateElement = document.getElementById("chosenDate");
             chosenDateElement.innerText = date;
-            document.getElementById("stockPrice").innerText = fetchStockPrice(ticker, date);
-            
-        }
-
-        function addDays(dateString, days) {
-    const date = new Date(dateString); // Converts string to Date object
-    date.setDate(date.getDate() + days); // Add/subtract days
-    return date.toISOString().split('T')[0]; // Formats back to YYYY-MM-DD
-}
-
-            async function fetchStockPrice(ticker, date) {
-            return await fetch(`../data/stocks/${ticker}.csv`)
-                .then(response => response.text())
-                .then(csvText => {
-                    return new Promise((resolve, reject) => {
-                        Papa.parse(csvText, {
-                            header: true,
-                            complete: function(results) {
-                                const data = results.data;
-                                const stockData = data.find(row => row.Date === date && row.Symbol === ticker);
-                                if (stockData) {
-                                    document.getElementById("stockPrice").innerText = stockData.Close;
-                                    resolve(stockData.Close);
-                                } else {
-                                    //resolve(0);
-                                    reject("No data available for this date and ticker.");
-                                }
-                            }
-                        });
-                    });
-                });
-            }
-            
-        //     function fetchStockPrice(ticker, date) {
-        //     fetch(`../data/stocks/${ticker}.csv`)
-        //         .then(response => response.text())
-        //         .then(csvText => {
-        //             Papa.parse(csvText, {
-        //                 header: true,
-        //                 complete: function(results) {
-        //                     const data = results.data;
-        //                     const stockData = data.find(row => row.Date === date && row.Symbol === ticker);
-        //                     if (stockData) {
-        //                         //document.getElementById("stockPrice").innerText = stockData.Close;
-        //                         return stockData.Close;
-        //                     } else {
-        //                        // document.getElementById("stockPrice").innerText = "No data available for this date and ticker.";
-        //                     }
-        //                 }
-        //             });
-        //         })
-        //         .catch(error => {
-        //             console.error('Error fetching or parsing the CSV file:', error);
-        //             document.getElementById("stockPrice").innerText = "Error fetching data.";
-        //         });
-        // }
-
-
-        // function fetchStockPrice(ticker, date) {
-        //     return fetch(`../data/stocks/${ticker}.csv`)
-        //         .then(response => response.text())
-        //         .then(csvText => {
-        //             const rows = csvText.split("\n");
-        //             const headers = rows[0].split(",");
-        //             const dateIndex = headers.indexOf("Date");
-        //             const symbolIndex = headers.indexOf("Symbol");
-        //             const closeIndex = headers.indexOf("Close");
-
-        //             for (let i = 1; i < rows.length; i++) {
-        //                 const row = rows[i].split(",");
-        //                 if (row[dateIndex] === date && row[symbolIndex] === ticker) {
-        //                     return row[closeIndex];
-        //                 }
-        //             }
-        //             return "No data available for this date and ticker.";
-        //         })
-        //         .catch(error => {
-        //             console.error('Error fetching or parsing the CSV file:', error);
-        //             return "Error fetching data.";
-        //         });
-        // }
-            async function calculateOdds(){
-                const days = parseInt(document.getElementById("timeFrame").value);
-                let profitOdds = 0;
-                let totalDelta = 0;
-                let averageDelta = 0;
-                let total = 0;
-                let positiveCount = 0;
-                const ticker = document.getElementById("tickerInput").value.toUpperCase();
-                fetch(`../data/stocks/${ticker}.csv`)
-                    .then(response => response.text())
-                    .then(csvText => {
-                        const rows = csvText.split("\n");
-
-                        for (let i = 1; i < (rows.length - days); i++) {
-                            const row = rows[i].split(",");
-                            let date = row[0];           // Date
-                            let symbol = row[1];         // Symbol
-                            let close = parseFloat(row[3]);   // Close Price
-                            console.log(`Date: ${date}, Symbol: ${symbol}, Close: ${close}`);
-
-                                if(!(close == 0 || close == NaN))
-                                    {
-                                    if(! (fetchStockPrice(ticker,addDays(date, days)) == 0 || fetchStockPrice(ticker,addDays(date, days)) == NaN))
-                                    {
-                                        delta = fetchStockPrice(ticker, addDays(date, days)) - close;
-                                            totalDelta += delta;
-                                            if(delta > 0) positiveCount++; 
-                                            total++;
-                                     }
-
-                                    };
-
-                
-
-                          }
-                profitOdds = positiveCount / total;
-                    averageDelta = totalDelta / total;
-                    profitOdds = profitOdds * 100;
-                    document.getElementById("averageDelta").innerText = averageDelta;
-                    document.getElementById("profitOdds").innerText = profitOdds;
+            fetchStockPrice(ticker, date).then(price => {
+                document.getElementById("stockPrice").innerText = price;
+            }).catch(error => {
+                document.getElementById("stockPrice").innerText = error;
             });
         }
 
+        function addDays(dateString, days) {
+            const date = new Date(dateString); // Converts string to Date object
+            date.setDate(date.getDate() + days); // Add/subtract days
+            return date.toISOString().split('T')[0]; // Formats back to YYYY-MM-DD
+        }
 
+        async function fetchStockPrice(ticker, date) {
+            try {
+                const response = await fetch(`../data/stocks/${ticker}.csv`);
+                const csvText = await response.text();
+                return new Promise((resolve, reject) => {
+                    Papa.parse(csvText, {
+                        header: true,
+                        complete: function(results) {
+                            const data = results.data;
+                            const stockData = data.find(row => row.Date === date && row.Symbol === ticker);
+                            if (stockData) {
+                                resolve(stockData.Close);
+                            } else {
+                                reject("No data available for this date and ticker.");
+                            }
+                        }
+                    });
+                });
+            } catch (error) {
+                throw new Error("Error fetching data.");
+            }
+        }
+
+        async function calculateOdds() {
+            const days = parseInt(document.getElementById("timeFrame").value);
+            let profitOdds = 0;
+            let totalDelta = 0;
+            let averageDelta = 0;
+            let total = 0;
+            let positiveCount = 0;
+            const ticker = document.getElementById("tickerInput").value.toUpperCase();
+            const response = await fetch(`../data/stocks/${ticker}.csv`);
+            const csvText = await response.text();
+            const rows = csvText.split("\n");
+
+            for (let i = 1; i < (rows.length - days); i++) {
+                const row = rows[i].split(",");
+                let date = row[0];           // Date
+                let close = parseFloat(row[3]);   // Close Price
+                console.log(`Date: ${date}, Close: ${close}`);
+
+                if (!(close == 0 || isNaN(close))) {
+                    try {
+                        const futurePrice = await fetchStockPrice(ticker, addDays(date, days));
+                        if (!(futurePrice == 0 || isNaN(futurePrice))) {
+                            const delta = futurePrice - close;
+                            totalDelta += delta;
+                            if (delta > 0) positiveCount++;
+                            total++;
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
+            }
+
+            if (total > 0) {
+                profitOdds = (positiveCount / total) * 100;
+                averageDelta = totalDelta / total;
+            }
+
+            document.getElementById("averageDelta").innerText = averageDelta.toFixed(2);
+            document.getElementById("profitOdds").innerText = profitOdds.toFixed(2);
+        }
     </script>
 </body>
 </html>
