@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Stock Price Lookup</title>
+    <link rel="stylesheet" href="styles.css">
+<!-- papa parse is now included as a script source for the whole page. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Stock Price Lookup</h1>
+        <h2>Enter a stock ticker:</h2>
+        <input type="text" id="tickerInput">
+
+        <h2>Enter a date:</h2>
+        <input type="date" id="dateInput">
+        <div id="chosenDate"></div>
+        <button onclick="clickPriceButton()">Get Stock Price</button>
+        <p>Stock Price: <span id="stockPrice"></span></p>
+
+        <h2>or</h2>
+            <h1>Stock Odds Calculator</h1>
+
+        <h2>Enter a time frame (Months):</h2>
+        <input type="number" id="timeFrame">
+        <button onclick="calculateOdds()">Calulate Odds</button>
+        <p>Profit Odds: <span id="profitOdds"></span>%</p>
+        <p>Average Delta: $<span id="averageDelta"></span></p>
+        
+    </div>
+
+
+    <script>
+        function clickPriceButton() {
+            const ticker = document.getElementById("tickerInput").value.toUpperCase();
+            const date = document.getElementById("dateInput").value;
+            const chosenDateElement = document.getElementById("chosenDate");
+            chosenDateElement.innerText = date;
+            fetchStockPrice(ticker, date)
+        }
+
+
+            function fetchStockPrice(ticker, date) {
+            return fetch('../data/sp500_stocks.csv')
+                .then(response => response.text())
+                .then(csvText => {
+                    return new Promise((resolve, reject) => {
+                        Papa.parse(csvText, {
+                            header: true,
+                            complete: function(results) {
+                                const data = results.data;
+                                const stockData = data.find(row => row.Date === date && row.Symbol === ticker);
+                                if (stockData) {
+                                    document.getElementById("stockPrice").innerText = stockData.Close;
+                                    resolve(stockData.Close);
+                                } else {
+                                    reject("No data available for this date and ticker.");
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+
+            // calculateOdds(){
+            //     let timeFrame = document.getElementById("timeFrame").value;
+            //     let profitOdds = 0;
+            //     let totalDelta = 0;
+            //     let averageDelta = 0;
+            //     let total = 0;
+            //     let positiveCount = 0;
+
+            //     //for each day in the stock, until there is no more days for that stock.
+            //         //unless fetchPrice(day) is 0, 
+            //         //unless fetchPrice(day+timeframe) is 0
+            //             //delta = fetchPrice(day+timeframe) - fetchPrice(day);
+            //             //totalDelta += delta;
+            //             //if delta > 0,
+            //                 //positiveCount++; 
+            //             //total++;
+            //     //profitOdds = positiveCount / total;
+            //     //averageDelta = totalDelta / total;
+            //     //profitOdds = profitOdds * 100;
+
+
+                
+            // }
+        
+    </script>
+</body>
+</html>
