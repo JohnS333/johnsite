@@ -26,6 +26,10 @@
         <h2>Enter a time frame (Days):</h2>
         <input type="number" id="timeFrame">
         <button onclick="calculateOdds()">Calulate Odds (roughly 1-2 minutes)</button>
+        <div id="loadingSection" style="visibility: hidden;">        <label for="progress">Calculating...</label>
+            <progress id="progress" value="10" max="3655"></progress>
+        </div>
+
         <p>Profit Odds: <span id="profitOdds"></span>%</p>
         <p>Average Delta: $<span id="averageDelta"></span></p>
         <p>This is not financial advice!</p>
@@ -36,6 +40,14 @@
 
 
     <script>
+        function toggleVisibility(elementId) {
+            let element = document.getElementById(elementId);
+            if (element.style.visibility === "hidden") {
+            element.style.visibility = "visible";  // Show
+            } else {
+            element.style.visibility = "hidden";   // Hide
+            }
+        }
         function clickPriceButton() {
             const ticker = document.getElementById("tickerInput").value.toUpperCase();
             const date = document.getElementById("dateInput").value;
@@ -78,6 +90,8 @@
         }
 
         async function calculateOdds() {
+            toggleVisibility("loadingSection");
+            document.getElementById("progress").value = 0;
             const days = parseInt(document.getElementById("timeFrame").value);
             let profitOdds = 0;
             let totalDelta = 0;
@@ -108,15 +122,17 @@
                         console.error(error);
                     }
                 }
+                document.getElementById("progress").value++;
             }
 
             if (total > 0) {
                 profitOdds = (positiveCount / total) * 100;
                 averageDelta = totalDelta / total;
             }
-
+            toggleVisibility("loadingSection");
             document.getElementById("averageDelta").innerText = averageDelta.toFixed(2);
             document.getElementById("profitOdds").innerText = profitOdds.toFixed(2);
+            
         }
     </script>
 </body>
